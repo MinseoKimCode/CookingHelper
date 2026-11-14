@@ -1,0 +1,13 @@
+import test,{after,before} from 'node:test';
+import assert from 'node:assert/strict';
+process.env.NODE_ENV='test';
+const {server}=await import('../server.mjs');
+let base;
+before(async()=>{await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));base=`http://127.0.0.1:${server.address().port}`;});
+after(()=>new Promise(resolve=>server.close(resolve)));
+const post=(route,data)=>fetch(base+route,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+test('홈과 프론트 파일을 제공한다',async()=>{for(const route of ['/','/app.js','/style.css'])assert.equal((await fetch(base+route)).status,200);});
+test('실제 추천 API가 계란 동의어를 처리한다',async()=>{const res=await post('/api/recommend',{ingredients:['계란','토마토','대파'],level:0,servings:2});assert.equal(res.status,200);assert.equal((await res.json()).recipes[0].id,'tomato-egg');});
+test('비정상 입력과 인분은 거절한다',async()=>{for(const data of [{ingredients:'달걀',level:0,servings:2},{ingredients:['달걀'],level:0,servings:99}])assert.equal((await post('/api/recommend',data)).status,400);});
+test('사진이 아닌 데이터를 거절한다',async()=>assert.equal((await post('/api/recognize',{image:'file:///secret'})).status,400));
+test('서버 파일을 정적 경로로 노출하지 않는다',async()=>assert.equal((await fetch(base+'/.env')).status,404));

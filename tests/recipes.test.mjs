@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {recommend,normalize,recipes} from '../lib/recipes.mjs';
+test('동의어를 정규화한다',()=>{assert.equal(normalize(' 계란 '),'달걀');assert.equal(normalize('느타리버섯'),'버섯');});
+test('완성 가능한 토마토 달걀 볶음을 우선 추천한다',()=>{const r=recommend({ingredients:['계란','토마토','대파']});assert.equal(r[0].id,'tomato-egg');assert.deepEqual(r[0].missing,[]);});
+test('직접 제외 재료와 복합 식품 알레르기를 필터한다',()=>{const input={ingredients:['달걀','토마토','밥','김치','두부','버섯','감자','파스타']};const withoutEgg=recommend({...input,excluded:['달걀']});assert.ok(withoutEgg.length);assert.ok(withoutEgg.every(r=>!r.ingredients.some(i=>i.name==='달걀')));const withoutWheat=recommend({...input,excluded:['밀']});assert.ok(withoutWheat.length);assert.ok(withoutWheat.every(r=>![...r.ingredients,...r.seasonings].some(i=>['파스타','부침가루','간장'].includes(i.name))));});
+test('제외 재료로 모든 후보가 사라지면 빈 결과를 반환한다',()=>assert.deepEqual(recommend({ingredients:['달걀'],excluded:['달걀']}),[]));
+test('인분에 따라 재료와 양념을 함께 환산한다',()=>{const r=recommend({ingredients:['토마토'],servings:4})[0];assert.equal(r.ingredients.find(i=>i.name==='토마토').amount,4);assert.equal(r.seasonings.find(i=>i.name==='식용유').amount,2);});
+test('실제로 보유한 대체 재료만 제시한다',()=>{const r=recommend({ingredients:['감자','양파','밀가루']}).find(r=>r.id==='potato-pancake');assert.equal(r.swaps[0].name,'밀가루');assert.ok(r.missing.includes('부침가루'));});
+test('재료가 전혀 맞지 않으면 추천을 꾸며내지 않는다',()=>assert.deepEqual(recommend({ingredients:['용과']}),[]));
+test('모든 샘플에 조리 단계와 분량이 있다',()=>{for(const r of recipes){assert.ok(r.steps.length>=3);assert.ok(r.ingredients.every(i=>i.amount>0));assert.ok(r.steps.every(s=>s.minutes>0&&s.text&&s.heat));}});
