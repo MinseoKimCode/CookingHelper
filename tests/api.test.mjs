@@ -12,6 +12,43 @@ test('비정상 입력과 인분은 거절한다',async()=>{for(const data of [{
 test('사진이 아닌 데이터를 거절한다',async()=>assert.equal((await post('/api/recognize',{image:'file:///secret'})).status,400));
 test('서버 파일을 정적 경로로 노출하지 않는다',async()=>assert.equal((await fetch(base+'/.env')).status,404));
 
+test('카탈로그는 보유 재료 없이도 한식, 양식, 일식을 여러 개 제공한다',async()=>{
+ const response=await post('/api/recommend',{mode:'catalog',ingredients:[],level:0,servings:2});
+ assert.equal(response.status,200);
+ const result=await response.json();
+ assert.equal(result.mode,'catalog');
+ for(const cuisine of ['korean','western','japanese']){
+  assert.ok(result.recipes.filter(recipe=>recipe.cuisine===cuisine).length>=3);
+ }
+ assert.ok(result.recipes.every(recipe=>recipe.matched===0&&recipe.missing.length>0));
+});
+
+test('카탈로그에서 양념 보유 여부, 제외 재료 및 인분을 반영한다',async()=>{
+ const context={mode:'catalog',ingredients:['밥'],pantry:['간장','식용유'],excluded:['우유'],level:0,servings:4};
+ const result=await (await post('/api/recommend',context)).json();
+ assert.equal(result.recipes[0].id,'yaki-onigiri');
+ assert.equal(result.recipes[0].ingredients[0].amount,4);
+ assert.deepEqual(result.recipes[0].missingSeasonings,[]);
+ assert.ok(!result.recipes.some(recipe=>recipe.id==='potato-soup'));
+ const partial=await (await post('/api/recommend',{...context,pantry:['식용유']})).json();
+ assert.deepEqual(partial.recipes.find(recipe=>recipe.id==='yaki-onigiri').missingSeasonings,['간장']);
+});
+
+test('카탈로그 사진은 원본 출처와 함께 로컬 JPEG로 제공한다',async()=>{
+ const result=await (await post('/api/recommend',{mode:'catalog',ingredients:[],level:0,servings:2})).json();
+ const photos=result.recipes.flatMap(recipe=>recipe.photo?[recipe.photo]:[]);
+ assert.equal(photos.length,13);
+ for(const photo of photos){
+  assert.equal(new URL(photo.sourceUrl).hostname,'commons.wikimedia.org');
+  assert.ok(photo.author&&photo.license);
+  const response=await fetch(base+photo.url);
+  assert.equal(response.headers.get('content-type'),'image/jpeg');
+  const bytes=new Uint8Array(await response.arrayBuffer());
+  assert.deepEqual([...bytes.subarray(0,3)],[255,216,255]);
+ }
+ assert.equal((await fetch(base+'/recipe-images/unknown.jpg')).status,404);
+});
+
 test('사진 인식과 AI 추천 API를 연결하고 보유하지 않은 재료를 제외한다', async () => {
  const originalFetch = globalThis.fetch;
  const originalKey = process.env.OPENAI_API_KEY;
