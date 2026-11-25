@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5faf6">
+  <title>한끼 · 요리도우미</title>
+  <link rel="stylesheet" href="/style.css?v=assistant-guide">
+  <script src="/app.js?v=assistant-guide" defer></script>
+  <script src="/community.js" defer></script>
+</head>
+<body>
+  <div class="iphone">
+    <div class="iphone-screen">
+      <header class="app-header">
+        <button type="button" class="header-button" id="pantryToggle" aria-expanded="false" aria-label="냉장고 열기"><svg class="icon" aria-hidden="true"><use href="/icons.svg#refrigerator"></use></svg></button>
+        <button class="assistant-profile" id="assistantHelp" type="button" aria-label="한끼 사용법 보기">
+          <span class="assistant-avatar" data-state="idle" aria-hidden="true">
+            <span class="assistant-rig">
+              <img class="assistant-body" src="/hankki-body-green.png" width="88" height="88" alt="" fetchpriority="high">
+              <span class="assistant-hat"></span>
+              <span class="assistant-expression">
+                <span class="assistant-eye assistant-eye-left"><i></i></span>
+                <span class="assistant-eye assistant-eye-right"><i></i></span>
+                <span class="assistant-smile"></span>
+              </span>
+              <span class="assistant-hand assistant-hand-left"></span>
+              <span class="assistant-hand assistant-hand-right"><i class="assistant-spoon"></i></span>
+              <span class="assistant-pot"><i></i><i></i><i></i></span>
+              <span class="assistant-laptop"><i></i><i></i><i></i></span>
+              <span class="assistant-lens"></span>
+            </span>
+            <span class="assistant-sparks"><i></i><i></i></span>
+          </span>
+          <span>한끼</span>
+          <svg class="icon" aria-hidden="true"><use href="/icons.svg#circle-help"></use></svg>
+        </button>
+        <span class="header-spacer" aria-hidden="true"></span>
+      </header>
+
+      <main class="app-content" id="workspace">
+        <div id="pantryView" class="pantry-view">
+          <section class="conversation" aria-label="한끼와 대화">
+            <h1 id="pageTitle" class="sr-only">한끼 요리 비서</h1>
+            <div class="bubble assistant-bubble greeting" aria-live="polite" aria-atomic="true"><p class="greeting-title" id="guideTitle">냉장고에 뭐가 있나요?</p><p id="guideMessage">재료 사진을 찍거나 이름을 적어주세요. 처음이라면 아래 요리 예시를 눌러봐요!</p></div>
+            <div class="starter-actions">
+              <button class="quick-action quick-action-photo" type="button" id="chatPhoto"><span class="quick-action-icon"><svg class="icon" aria-hidden="true"><use href="/icons.svg#camera"></use></svg></span><span>사진으로 찾기</span><svg class="icon" aria-hidden="true"><use href="/icons.svg#arrow-right"></use></svg></button>
+              <button class="quick-action quick-action-text" type="button" id="chatExample"><span class="quick-action-icon"><svg class="icon" aria-hidden="true"><use href="/icons.svg#plus"></use></svg></span><span>재료 직접 입력</span><svg class="icon" aria-hidden="true"><use href="/icons.svg#arrow-right"></use></svg></button>
+            </div>
+            <div class="home-guide" id="homeGuide">
+              <section aria-labelledby="mealExamplesTitle">
+                <h2 id="mealExamplesTitle">예시 재료로 시작하기</h2>
+                <div class="meal-examples">
+                  <button class="meal-example" type="button" data-example="김치, 밥, 달걀, 대파" data-meal-cuisine="korean">
+                    <img src="/recipe-images/kimchi-rice.jpg" alt="" width="320" height="180">
+                    <span class="meal-example-copy"><strong>김치볶음밥</strong><small>김치 · 밥 · 달걀 · 대파</small></span>
+                  </button>
+                  <button class="meal-example" type="button" data-example="닭고기, 양파, 달걀, 밥" data-meal-cuisine="japanese">
+                    <img src="/recipe-images/oyakodon.jpg" alt="" width="320" height="180">
+                    <span class="meal-example-copy"><strong>닭고기 달걀덮밥</strong><small>닭고기 · 양파 · 달걀 · 밥</small></span>
+                  </button>
+                </div>
+              </section>
+              <section aria-labelledby="homeShortcutsTitle">
+                <h2 id="homeShortcutsTitle">한끼에서 할 수 있어요</h2>
+                <div class="home-shortcuts">
+                  <button type="button" data-home-shortcut="homeNav"><span class="home-shortcut-icon"><svg class="icon" aria-hidden="true"><use href="/icons.svg#chef-hat"></use></svg></span><span><strong>레시피 보고 요리하기</strong><small>재료 분량부터 불 세기, 조리 순서까지</small></span><svg class="icon" aria-hidden="true"><use href="/icons.svg#arrow-right"></use></svg></button>
+                  <button type="button" data-home-shortcut="communityNav"><span class="home-shortcut-icon"><svg class="icon" aria-hidden="true"><use href="/icons.svg#users-round"></use></svg></span><span><strong>다른 사람의 한 끼 보기</strong><small>요리 사진을 올리고 조리 팁 나누기</small></span><svg class="icon" aria-hidden="true"><use href="/icons.svg#arrow-right"></use></svg></button>
+                  <button type="button" data-home-shortcut="savedNav"><span class="home-shortcut-icon"><svg class="icon" aria-hidden="true"><use href="/icons.svg#bookmark"></use></svg></span><span><strong>저장한 레시피 다시 보기</strong><small>추천에서 북마크한 메뉴 모아보기</small></span><svg class="icon" aria-hidden="true"><use href="/icons.svg#arrow-right"></use></svg></button>
+                </div>
+              </section>
+            </div>
+            <div class="conversation-log" id="conversationLog" role="log" aria-label="요리 추천 대화"></div>
+            <p class="photo-notice" id="photoNotice" role="status"></p>
+            <div id="photoReview" hidden></div>
+          </section>
+          <section class="pantry" id="pantryPanel" aria-labelledby="pantryTitle" hidden>
+            <div class="section-heading"><h2 id="pantryTitle">내 냉장고</h2><span id="ingredientCount" class="ingredient-count"></span></div>
+          <div class="chips" id="ingredients"></div>
+          <div class="quick" id="quickIngredients" aria-label="재료 빠르게 추가"></div>
+          <details class="recipe-options">
+            <summary><svg class="icon" aria-hidden="true"><use href="/icons.svg#sliders-horizontal"></use></svg>요리 설정<svg class="icon" aria-hidden="true"><use href="/icons.svg#chevron-down"></use></svg></summary>
+            <div class="servings">
+              <span>인분</span>
+              <div><button id="minus" aria-label="인분 줄이기">−</button><output id="servings">2인분</output><button id="plus" aria-label="인분 늘리기">＋</button></div>
+            </div>
+            <div class="levels" role="group" aria-label="요리 숙련도">
+              <button data-level="0" class="selected" aria-pressed="true">초보</button>
+              <button data-level="1" aria-pressed="false">중급</button>
+              <button data-level="2" aria-pressed="false">고급</button>
+            </div>
+            <label for="pantryInput">보유 양념</label>
+            <input id="pantryInput" placeholder="예: 소금, 식용유, 간장">
+            <label for="excluded">제외 재료 · 알레르기</label>
+            <input id="excluded" placeholder="예: 달걀, 우유, 밀">
+            <p class="muted">복합 식품은 제품의 알레르기 표시를 확인해주세요.</p>
+          </details>
+          <button class="primary recommend" id="recommend">요리 추천받기 <svg class="icon" aria-hidden="true"><use href="/icons.svg#arrow-right"></use></svg></button>
+        </section>
+
+        </div>
+        <section class="results" id="recipeView" aria-labelledby="resultsTitle" hidden>
+          <div class="results-heading">
+            <h2 id="resultsTitle">추천 레시피</h2>
+            <span class="mode-badge" id="modeBadge"></span>
+          </div>
+          <div class="cuisine-tabs" id="cuisineTabs" role="group" aria-label="요리 종류">
+            <button type="button" class="selected" data-cuisine="all" aria-pressed="true">전체</button>
+            <button type="button" data-cuisine="korean" aria-pressed="false">한식</button>
+            <button type="button" data-cuisine="western" aria-pressed="false">양식</button>
+            <button type="button" data-cuisine="japanese" aria-pressed="false">일식</button>
+            <button type="button" data-cuisine="other" aria-pressed="false">기타</button>
+            <button type="button" data-cuisine="personal" aria-pressed="false">재료 맞춤</button>
+          </div>
+          <div class="list-tools">
+            <p id="resultDescription" class="muted" role="status"></p>
+            <select class="filters" id="recipeFilter" aria-label="레시피 필터">
+              <option value="all">모든 조건</option>
+              <option value="ready">바로 가능</option>
+              <option value="quick">20분 이내</option>
+              <option value="easy">초보</option>
+            </select>
+          </div>
+          <div class="cards" id="cards"></div>
+          <button type="button" class="secondary" id="shuffleRecipes">랜덤 메뉴 더 받기</button>
+        </section>
+          <section class="community-view" id="communityView" aria-labelledby="communityTitle" hidden>
+            <div class="community-heading">
+              <div>
+                <h2 id="communityTitle">커뮤니티</h2>
+                <p class="muted">오늘 만든 한 끼를 나눠요.</p>
+              </div>
+              <button class="primary" id="writePost" type="button">
+                <svg class="icon" aria-hidden="true"><use href="/icons.svg#plus"></use></svg>글쓰기
+              </button>
+            </div>
+            <div class="community-feed-heading">
+              <h3>최근 게시글</h3>
+              <button type="button" id="refreshFeed">새로고침</button>
+            </div>
+            <p id="communityStatus" class="muted" role="status"></p>
+            <div id="communityFeed" class="community-feed"></div>
+            <button class="secondary community-more" id="morePosts" type="button" hidden>게시글 더 보기</button>
+          </section>
+      </main>
+      <div class="recipe-loading" id="recipeLoading" role="status" hidden>
+        <div class="recipe-loading-card">
+          <span class="recipe-loading-spinner" aria-hidden="true"></span>
+          <span>레시피를 불러오는 중이에요</span>
+        </div>
+      </div>
+      <div class="app-dock">
+        <div class="composer-dock" id="composerDock">
+          <div class="attachment-tray" id="attachmentTray" hidden>
+            <button type="button" id="takePhoto"><svg class="icon" aria-hidden="true"><use href="/icons.svg#camera"></use></svg><span>카메라</span></button>
+            <button type="button" id="selectPhoto"><svg class="icon" aria-hidden="true"><use href="/icons.svg#images"></use></svg><span>앨범</span></button>
+          </div>
+          <input id="cameraPhoto" type="file" accept="image/*" capture="environment" hidden>
+          <input id="photo" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+          <label class="meal-choice">오늘 먹고 싶은 요리
+            <select id="mealCuisine"><option value="">종류 선택</option><option value="korean">한식</option><option value="western">양식</option><option value="japanese">일식</option></select>
+          </label>
+          <form class="composer" id="ingredientForm">
+            <button class="attach-button" id="attachmentToggle" type="button" aria-label="사진 첨부" aria-controls="attachmentTray" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="/icons.svg#plus"></use></svg></button>
+            <label class="sr-only" for="ingredientInput">보유 재료 입력</label>
+            <input id="ingredientInput" placeholder="재료를 입력하세요" maxlength="200" autocomplete="off" enterkeyhint="send">
+            <button class="send-button" id="sendIngredients" type="submit" aria-label="재료로 요리 찾기"><svg class="icon" aria-hidden="true"><use href="/icons.svg#arrow-right"></use></svg></button>
+          </form>
+        </div>
+        <nav class="tab-bar" aria-label="주 메뉴">
+        <button class="nav active" id="pantryNav" aria-pressed="true">
+          <svg class="icon" aria-hidden="true"><use href="/icons.svg#message-circle"></use></svg>대화
+        </button>
+        <button class="nav" id="homeNav" aria-pressed="false">
+          <svg class="icon" aria-hidden="true"><use href="/icons.svg#cooking-pot"></use></svg>추천
+        </button>
+        <button class="nav" id="communityNav" aria-pressed="false">
+          <svg class="icon" aria-hidden="true"><use href="/icons.svg#users-round"></use></svg>커뮤니티
+        </button>
+        <button class="nav" id="savedNav" aria-pressed="false">
+          <svg class="icon" aria-hidden="true"><use href="/icons.svg#bookmark"></use></svg>저장 <span id="savedCount"></span>
+        </button>
+      </nav>
+      </div>
+
+      <dialog id="recipeDialog" aria-label="레시피 상세"><div id="recipeDetail"></div></dialog>
+      <dialog id="cookingDialog" aria-label="단계별 조리"><div id="cookingDetail"></div></dialog>
+      <dialog id="writePostDialog" aria-labelledby="writePostTitle">
+        <div class="detail-top">
+          <h2 id="writePostTitle">글쓰기</h2>
+          <button class="close" type="button" data-close="writePostDialog" aria-label="닫기">×</button>
+        </div>
+        <form id="postForm" class="community-form detail-body">
+          <label for="postAuthor">닉네임</label>
+          <input id="postAuthor" name="author" maxlength="24" required autocomplete="nickname">
+          <label for="postTitle">제목</label>
+          <input id="postTitle" name="title" maxlength="80" required placeholder="예: 냉장고 재료로 만든 첫 한 끼">
+          <label for="postContent">후기</label>
+          <textarea id="postContent" name="content" rows="4" maxlength="1200" required placeholder="무엇을 만들었고 어땠나요?"></textarea>
+          <label class="secondary photo-picker" for="postPhoto">
+            <svg class="icon" aria-hidden="true"><use href="/icons.svg#camera"></use></svg>사진 첨부 <span class="muted">(선택)</span>
+          </label>
+          <input class="sr-only" id="postPhoto" type="file" accept="image/jpeg,image/png,image/webp" aria-label="요리 사진">
+          <div id="postPhotoPreview" class="post-photo-preview" hidden>
+            <img alt="첨부 사진 미리보기">
+            <button type="button" class="secondary" id="removePostPhoto">사진 빼기</button>
+          </div>
+          <p class="community-error" id="postError" role="status"></p>
+          <button class="primary" id="publishPost" type="submit">게시하기</button>
+        </form>
+      </dialog>
+      <dialog id="threadDialog" aria-label="커뮤니티 게시글">
+        <div class="detail-top">
+          <span class="section-kicker">커뮤니티</span>
+          <button class="close" type="button" data-close="threadDialog" aria-label="닫기">×</button>
+        </div>
+        <div class="detail-body">
+          <p id="threadStatus" class="muted" role="status"></p>
+          <div id="threadContent" hidden>
+            <h2 id="threadTitle"></h2>
+            <p id="threadMeta" class="muted"></p>
+            <img class="thread-image" id="threadImage" alt="게시글 요리 사진" hidden>
+            <p id="threadText" class="thread-text"></p>
+            <button id="threadLike" type="button" class="secondary" aria-pressed="false"></button>
+            <h3 id="commentsTitle">댓글</h3>
+            <div id="commentsList" class="comments-list"></div>
+            <form id="commentForm" class="community-form">
+              <label for="commentAuthor">닉네임</label>
+              <input id="commentAuthor" name="author" maxlength="24" required autocomplete="nickname">
+              <label for="commentText">댓글</label>
+              <textarea id="commentText" name="content" rows="2" maxlength="400" required placeholder="요리 이야기를 남겨보세요."></textarea>
+              <p class="community-error" id="commentError" role="status"></p>
+              <button type="submit" class="primary" id="sendComment">댓글 남기기</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+      <div id="toast" role="status"></div>
+    </div>
+  </div>
+</body>
+</html>

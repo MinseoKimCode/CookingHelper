@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "한끼",
+    "slug": "hankki",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": { "supportsTablet": true, "bundleIdentifier": "kr.hankki.app" },
+    "android": { "package": "kr.hankki.app" },
+    "web": { "name": "한끼 · 나의 요리 도우미", "output": "single" },
+    "plugins": [["expo-image-picker", {
+      "photosPermission": "재료와 완성한 요리 사진을 선택하기 위해 사진 접근이 필요합니다.",
+      "cameraPermission": "냉장고 재료와 완성한 요리를 촬영하기 위해 카메라 접근이 필요합니다.",
+      "microphonePermission": false
+    }]]
+  }
+}
