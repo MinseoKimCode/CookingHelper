@@ -2,20 +2,24 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import { deduct, restore } from '../inventory';
 import { api } from '../services/api';
 import { defaultSettings, loadStorage, saveStorage, type Stored } from '../services/storage';
-import type { Recipe, Settings, Tab } from '../types';
+import type { CookLog, Recipe, Settings, ShoppingItem, Tab } from '../types';
+import { localToday, mergeShopping } from '../recipeTools';
 import { resolveGuide, type GuideActivity, type GuideMessage } from '../guide';
 import { advanceTutorial, tutorialSteps, type TutorialEvent } from '../tutorial';
 
 function useAppState() {
   const [settings, setSettings] = useState<Settings>(defaultSettings);
   const [saved, setSaved] = useState<Recipe[]>([]);
+  const [logs, setLogs] = useState<CookLog[]>([]);
+  const [views, setViews] = useState<Record<string, number>>({});
   const [viewer, setViewer] = useState('');
   const [nickname, setNickname] = useState('');
   const [ready, setReady] = useState(false);
   const [storageError, setStorageError] = useState('');
   const [notice, setNotice] = useState('');
   const [aiEnabled, setAiEnabled] = useState<boolean | null>(null);
-  const [tab, setTabState] = useState<Tab>('pantry');
+  const [youtubeEnabled, setYoutubeEnabled] = useState(false);
+  const [tab, setTabState] = useState<Tab>('recipes');
   const [results, setResults] = useState<Recipe[]>([]);
   const [resultSettings, setResultSettings] = useState<Settings>(defaultSettings);
   const [resultMessage, setResultMessage] = useState('');
@@ -99,20 +103,20 @@ function useAppState() {
     setStorageError('');
     try {
       const data = await loadStorage();
-      setSettings(data.settings); setSaved(data.saved); setViewer(data.viewer); setNickname(data.nickname); setTutorialStep(data.tutorialStep); setTutorialCompleted(data.tutorialCompleted); setReady(true);
+      setSettings(data.settings); setSaved(data.saved); setLogs(data.logs); setViewer(data.viewer); setNickname(data.nickname); setTutorialStep(data.tutorialStep); setTutorialCompleted(data.tutorialCompleted); setReady(true);
     } catch { setStorageError('저장한 데이터를 읽지 못했어요. 기기의 저장 공간 접근을 확인해주세요.'); }
   }
-  useEffect(() => { void hydrate(); void api.status().then(s => setAiEnabled(s.aiEnabled)).catch(() => setAiEnabled(null));
+  useEffect(() => { void hydrate(); void api.status().then(s => { setAiEnabled(s.aiEnabled); setYoutubeEnabled(!!s.youtubeEnabled); }).catch(() => setAiEnabled(null));
     return () => activeRequest.current?.abort();
   }, []);
   useEffect(() => {
     if (!ready) return;
-    const data: Stored = { settings, saved, viewer, nickname, tutorialStep, tutorialCompleted };
+    const data: Stored = { settings, saved, viewer, nickname, tutorialStep, tutorialCompleted, logs };
     const timeout = setTimeout(() => {
       writes.current = writes.current.then(() => saveStorage(data)).catch(() => setNotice('변경 내용을 기기에 저장하지 못했어요. 저장 공간을 확인해주세요.'));
     }, 200);
     return () => clearTimeout(timeout);
-  }, [settings, saved, viewer, nickname, tutorialStep, tutorialCompleted, ready]);
+  }, [settings, saved, viewer, nickname, tutorialStep, tutorialCompleted, logs, ready]);
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(''), 6000); return () => clearTimeout(timer); }, [notice]);
 
   function updateSettings(change: Partial<Settings>) { setSettings(current => {
@@ -121,6 +125,17 @@ function useAppState() {
     if (change.ingredients || change.stock) next.undoStock = undefined;
     return next;
   }); }
+  function addShopping(items: ShoppingItem[]) { setSettings(current => ({ ...current, shopping: mergeShopping(current.shopping || [], items) })); }
+  function addLog(recipe: Recipe, rating: number, memo: string, servings = recipe.servings) {
+    const entry: CookLog = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, recipeId: recipe.id, name: recipe.name, date: localToday(), servings, rating, memo: memo.trim().slice(0, 300), calories: recipe.calories };
+    setLogs(current => [entry, ...current].slice(0, 500));
+  }
+  function removeLog(id: string) { setLogs(current => current.filter(log => log.id !== id)); }
+  // Ranking counts only server-reviewed AI recipes; failures never block opening a recipe.
+  const recordView = useCallback((recipe: Recipe) => {
+    if (!viewer || !/^ai-/.test(recipe.id)) return;
+    void api.view(recipe.id, viewer).then(result => setViews(current => ({ ...current, [recipe.id]: result.views }))).catch(() => undefined);
+  }, [viewer]);
   function consumeStock(used: Record<string,number>) { setSettings(current => deduct(current, used)); }
   function undoConsumption() { setSettings(restore); }
   function toggleSaved(recipe: Recipe) {
@@ -155,8 +170,8 @@ function useAppState() {
     finally { if (version === generation.current) setSearching(false); }
   }
   function cancelSearch() { generation.current++; activeRequest.current?.abort(); setSearching(false); }
-  return { settings, updateSettings, consumeStock, undoConsumption, saved, toggleSaved, viewer, nickname, setNickname, ready, storageError, hydrate,
-    notice, setNotice, aiEnabled, tab, setTab, results, resultSettings, resultMessage, resultMode, searching, recommend, cancelSearch,
+  return { logs, addLog, removeLog, addShopping, views, setViews, recordView, settings, updateSettings, consumeStock, undoConsumption, saved, toggleSaved, viewer, nickname, setNickname, ready, storageError, hydrate,
+    notice, setNotice, aiEnabled, youtubeEnabled, tab, setTab, results, resultSettings, resultMessage, resultMode, searching, recommend, cancelSearch,
     guide, setGuideActivity, reactGuide, setGuideOverlay, guideModalOpen: Object.keys(guideOverlays).length > 0,
     tutorial, tutorialStep, tutorialCompleted, tutorialHasAiCopy: tutorialStep !== null && !!tutorialCopy[tutorialStep], startTutorial, nextTutorial, stopTutorial, tutorialEvent,
     aiGuideAnswer, aiGuideBusy, aiGuideError, askGuide, setGuideRecipe };

@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
-import type { Post, Recommendation, Settings, Filter, Cuisine } from '../types';
+import type { CatalogRow, Channel, Cuisine, Filter, Post, Ranking, Recipe, Recommendation, Review, Settings, Theme, Video, VideoAnalysis, YtChannel } from '../types';
 
 // A physical phone must address the PC's LAN IP, never the phone's localhost.
 const devHost = Constants.expoConfig?.hostUri?.split(':')[0];
@@ -21,7 +21,12 @@ export async function request<T>(path: string, data?: unknown, signal?: AbortSig
       headers: data === undefined ? undefined : { 'Content-Type': 'application/json' },
       body: data === undefined ? undefined : JSON.stringify(data), signal: controller.signal,
     });
-    const result = await response.json();
+    const text = await response.text();
+    let result;
+    try { result = JSON.parse(text); } catch {
+      throw new Error(response.ok ? '서버 응답 형식을 확인할 수 없어요.' : `서버 요청에 실패했어요 (${response.status}). 잠시 후 다시 시도해 주세요.`);
+    }
+    if (!result || typeof result !== 'object') throw new Error('서버 응답 형식을 확인할 수 없어요.');
     if (!response.ok) throw new Error(result.error || `요청에 실패했어요 (${response.status}).`);
     return result as T;
   } catch (error) {
@@ -31,8 +36,21 @@ export async function request<T>(path: string, data?: unknown, signal?: AbortSig
   } finally { clearTimeout(timeout); signal?.removeEventListener('abort', abort); }
 }
 export const api = {
-  status: () => request<{ aiEnabled: boolean }>('/api/status'),
-  recommend: (settings: Settings, options: { mode: 'ai' | 'catalog'; cuisine: Cuisine; filter: Filter; more?: boolean; recentMenus?: string[]; previousKeys?: string[] }, signal?: AbortSignal) => request<Recommendation>('/api/recommend', { ...settings, shopping: undefined, stock: undefined, undoStock: undefined, ...options }, signal),
+  status: () => request<{ aiEnabled: boolean; youtubeEnabled?: boolean }>('/api/status'),
+  catalog: (query: { q?: string; cuisine?: string; maxTime?: number; level?: number; caloriesMax?: number; source?: '' | 'video' | 'ai'; sort?: string; page?: number; size?: number }, signal?: AbortSignal) =>
+    request<{ recipes: CatalogRow[]; total: number; page: number; hasMore: boolean }>('/api/recipes?' + Object.entries(query).filter(([, v]) => v !== undefined && v !== '' && v !== 'all').map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`).join('&'), undefined, signal),
+  youtubeVideos: (q: string, order: 'relevance' | 'viewCount' | 'date' = 'relevance', signal?: AbortSignal) => request<{ videos: Video[] }>(`/api/youtube/videos?q=${encodeURIComponent(q)}&order=${order}`, undefined, signal),
+  youtubeChannels: (ids: string[] = [], signal?: AbortSignal) => request<{ channels: YtChannel[] }>(`/api/youtube/channels${ids.length ? `?ids=${ids.join(',')}` : ''}`, undefined, signal),
+  videoRecipe: (url: string, notes = '', signal?: AbortSignal) => request<{ recipe: Recipe; reused: boolean }>('/api/video/recipe', { url, notes }, signal),
+  recommend: (settings: Settings, options: { mode: 'ai' | 'catalog'; cuisine: Cuisine; filter: Filter; more?: boolean; recentMenus?: string[]; previousKeys?: string[]; theme?: Theme; query?: string; tastes?: string[] }, signal?: AbortSignal) => request<Recommendation>('/api/recommend', { ...settings, shopping: undefined, stock: undefined, undoStock: undefined, diet: settings.diet || 'none', ...options }, signal),
+  rankings: (period: 'today' | 'week' | 'all', signal?: AbortSignal) => request<{ rankings: Ranking[] }>(`/api/rankings?period=${period}`, undefined, signal),
+  recipe: (id: string) => request<Ranking>(`/api/recipes/${encodeURIComponent(id)}`),
+  view: (id: string, viewer: string) => request<Ranking>(`/api/recipes/${encodeURIComponent(id)}/view`, { viewer }),
+  reviews: (id: string, signal?: AbortSignal) => request<{ reviews: Review[]; rating: number; reviewCount: number; views: number }>(`/api/recipes/${encodeURIComponent(id)}/reviews`, undefined, signal),
+  review: (id: string, data: { viewer: string; author: string; rating: number; content: string }) => request<{ reviews: Review[]; rating: number; reviewCount: number; views: number }>(`/api/recipes/${encodeURIComponent(id)}/reviews`, data),
+  report: (id: string, data: { viewer: string; reason: string; detail: string }) => request<{ received: boolean }>(`/api/recipes/${encodeURIComponent(id)}/reports`, data),
+  channels: (signal?: AbortSignal) => request<{ channels: Channel[] }>('/api/channels', undefined, signal),
+  analyzeVideo: (url: string, notes: string, signal?: AbortSignal) => request<VideoAnalysis>('/api/video/analyze', { url, notes }, signal),
   recognize: (image: string) => request<{ ingredients: string[] }>('/api/recognize', { image }),
   explain: (name: string, reason: string) => request<{ explanation: string }>('/api/explain', { name, reason }),
   guide: (event: 'question' | 'tutorial' | 'rescue', question: string, context: unknown, signal?: AbortSignal) => request<{ title: string; message: string }>('/api/guide', { event, question, context }, signal),

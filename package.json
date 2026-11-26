@@ -13,7 +13,9 @@
     "build:api": "node scripts/start.mjs build",
     "build:web": "expo export --platform web",
     "typecheck": "tsc --noEmit",
+    "pretest": "node scripts/start.mjs build",
     "test": "node --test scripts/*.test.mjs",
+    "pretest:spring": "node scripts/start.mjs build",
     "test:spring": "node --test scripts/spring-api.test.mjs"
   },
   "dependencies": {
@@ -38,5 +40,6 @@
   },
   "engines": {
     "node": ">=22"
-  }
+  },
+  "type": "module"
 }

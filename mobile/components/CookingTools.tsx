@@ -29,7 +29,7 @@ export function Rescue({recipe, step, instruction, apply}: {recipe: Recipe; step
     finally {if (!controller.signal.aborted) setBusy(false);}
   }
   function change(text:string) {setIssue(text); setApplied(false); setAnswer(''); setError('');}
-  return <View style={ui.card}><Text style={ui.heading}>조리 중 도움이 필요해요</Text><View style={ui.row}>{['재료가 없어요','너무 짜요'].map(label => <Button key={label} secondary disabled={busy} onPress={() => change(label)}>{label}</Button>)}</View>
+  return <View style={ui.card}><Text style={ui.label}>조리 중 막혔나요?</Text><View style={ui.row}>{['재료가 없어요','너무 짜요'].map(label => <Button key={label} small secondary disabled={busy} onPress={() => change(label)}>{label}</Button>)}</View>
     {!!issue && <><Field label="현재 상황" maxLength={600} editable={!busy} value={issue} onChangeText={change}/><Button busy={busy} disabled={!issue.trim()} onPress={() => void ask()}>몬스터에게 해결책 묻기</Button></>}
     {!!error && <Text style={ui.error}>{error}</Text>}{!!answer && <><Text style={ui.text}>{answer}</Text><Button onPress={() => {apply(answer); setAnswer(''); setIssue(''); setApplied(true);}}>현재 단계에 적용</Button></>}
   </View>;
@@ -49,5 +49,5 @@ export function Consumption({recipe,finish}: {recipe: Recipe; finish: () => void
     {stock.map(item => <Field key={item.name} label={item.name + ' · 보유 ' + item.quantity + item.unit} value={amounts[item.name] || ''} placeholder={'사용량 (' + item.unit + ')'} keyboardType="decimal-pad" onChangeText={text => setAmounts(prev => ({...prev,[item.name]:text}))}/>)}
     {invalid && <Text style={ui.error}>사용량은 보유량 이하로 입력해주세요. 소수점 셋째 자리까지 기록할 수 있어요.</Text>}
     <Button disabled={invalid} onPress={() => {if (locked.current) return; locked.current=true; app.consumeStock(Object.fromEntries(Object.entries(amounts).map(([name,value]) => [name,Number(value)]))); finish();}}>사용량 확정하고 완료</Button>
-    <Button secondary onPress={finish}>차감 없이 완료</Button></View>;
+    <Button ghost onPress={finish}>차감 없이 완료</Button></View>;
 }

@@ -31,6 +31,7 @@ export function resolveGuide(context: GuideContext, activities: GuideActivity[],
     case 'saved': return context.saved ? {
       mood: 'idle', title: '다시 만들고 싶은 요리들이네요', message: '저장한 요리를 열어 준비할 재료부터 확인해봐요.',
     } : { mood: 'idle', title: '좋아하는 요리를 모아봐요', message: '레시피의 북마크를 누르면 여기에 보관해둘게요.', action: 'recipes', actionLabel: '레시피 구경하기' };
+    case 'kitchen': return { mood: 'idle', title: '내 주방을 함께 정리해요', message: '장보기 리스트와 요리 기록, 식단 설정을 여기서 관리해요. 유튜브 레시피 주소로 장볼 재료도 찾아드려요.' };
     case 'community': return { mood: 'idle', title: '다른 주방의 이야기도 들어볼까요?', message: '완성한 요리나 나만의 팁을 나눠봐요. 궁금한 점은 댓글로 물어볼 수 있어요.' };
   }
 }
