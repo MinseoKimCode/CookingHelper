@@ -68,7 +68,6 @@ src/main/java/kr/hankki/     Spring Boot API
 src/main/resources/         API 설정 · 스키마 · 정적 사진
 scripts/                    API 실행과 실제 서버 통합 테스트
 docs/                       실행/시연 · 구조 · 전환 현황
-archive/legacy/                     전환 전 코드와 문서 보관 (실행 경로에서 제외)
 ```
 
 ## 옮긴 기능

@@ -14,8 +14,6 @@ android/
 ios/
 .recipe-stats/
 
-# Archived nested checkout is local only; do not recreate a broken gitlink.
-/CookingHelper/
 .moderation/
 *.mv.db
 *.trace.db

@@ -2,9 +2,6 @@ node_modules
 build
 dist
 .expo
-CookingHelper
-legacy
-archive
 package-lock.json
 assets
 *.pptx
