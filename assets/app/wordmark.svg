@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="160" viewBox="0 0 360 160">
+  <title>한끼</title>
+  <g fill="none" stroke="#126C45" stroke-width="19" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M41 20h29M23 43h65"/>
+    <ellipse cx="56" cy="75" rx="24" ry="17"/>
+    <path d="M117 24v70m0-37h22M37 113v23h96"/>
+    <path d="M173 35h35v64M229 35h35v64M296 27v108"/>
+  </g>
+  <path d="M328 14c-9 11-10 25-3 35 15-2 25-14 24-28-8-6-15-8-21-7Z" fill="#C3EC73"/>
+</svg>

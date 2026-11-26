@@ -5,5 +5,11 @@ export const DesktopLayout = createContext(true);
 
 export function LayoutScrollView(props: React.ComponentPropsWithRef<typeof ScrollView>) {
   const desktop = useContext(DesktopLayout);
-  return <ScrollView {...props} showsVerticalScrollIndicator={desktop} showsHorizontalScrollIndicator={desktop} />;
+  return (
+    <ScrollView
+      {...props}
+      showsVerticalScrollIndicator={desktop}
+      showsHorizontalScrollIndicator={desktop}
+    />
+  );
 }

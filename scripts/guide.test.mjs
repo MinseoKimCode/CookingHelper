@@ -4,7 +4,12 @@ import { resolveGuide } from '../mobile/guide.ts';
 
 const context = { tab: 'pantry', ingredients: 0, results: 0, saved: 0, searching: false };
 const reaction = { mood: 'happy', title: '완성!', message: '함께 만들었어요.' };
-const scanning = { mood: 'scanning', title: '사진 분석', message: '재료를 확인해요.', priority: 100 };
+const scanning = {
+  mood: 'scanning',
+  title: '사진 분석',
+  message: '재료를 확인해요.',
+  priority: 100,
+};
 const listening = { mood: 'listening', title: '입력 중', message: '듣고 있어요.', priority: 30 };
 
 test('first visit explains how to start, then offers recommendation for added ingredients', () => {
@@ -20,7 +25,10 @@ test('recommendation stays in thinking state until the request finishes', () => 
   assert.equal(resolveGuide(context, [], reaction).mood, 'happy');
 });
 test('photo scanning takes priority over recommendation and temporary celebration', () => {
-  assert.equal(resolveGuide({ ...context, searching: true }, [scanning, listening], reaction).mood, 'scanning');
+  assert.equal(
+    resolveGuide({ ...context, searching: true }, [scanning, listening], reaction).mood,
+    'scanning',
+  );
 });
 test('celebration is visible over passive listening without hiding an active task', () => {
   assert.equal(resolveGuide(context, [listening], reaction).mood, 'happy');

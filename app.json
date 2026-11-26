@@ -5,13 +5,47 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "ios": { "supportsTablet": true, "bundleIdentifier": "kr.hankki.app" },
-    "android": { "package": "kr.hankki.app" },
-    "web": { "name": "한끼 · 나의 요리 도우미", "output": "single" },
-    "plugins": [["expo-image-picker", {
-      "photosPermission": "재료와 완성한 요리 사진을 선택하기 위해 사진 접근이 필요합니다.",
-      "cameraPermission": "냉장고 재료와 완성한 요리를 촬영하기 위해 카메라 접근이 필요합니다.",
-      "microphonePermission": false
-    }]]
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "kr.hankki.app"
+    },
+    "android": {
+      "package": "kr.hankki.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/app/adaptive-icon.png",
+        "backgroundColor": "#F6F8EF"
+      },
+      "permissions": ["android.permission.SCHEDULE_EXACT_ALARM"]
+    },
+    "web": {
+      "name": "한끼 · 나의 요리 도우미",
+      "output": "single"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "재료와 완성한 요리 사진을 선택하기 위해 사진 접근이 필요합니다.",
+          "cameraPermission": "냉장고 재료와 완성한 요리를 촬영하기 위해 카메라 접근이 필요합니다.",
+          "microphonePermission": false
+        }
+      ],
+      "expo-sharing",
+      "expo-notifications",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/app/splash.png",
+          "imageWidth": 200,
+          "backgroundColor": "#F6F8EF"
+        }
+      ]
+    ],
+    "icon": "./assets/app/icon.png",
+    "splash": {
+      "image": "./assets/app/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F6F8EF"
+    }
   }
 }

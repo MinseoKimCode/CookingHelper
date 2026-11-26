@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>한끼 · 한 그릇의 즐거움</title>
+  <rect width="1024" height="1024" fill="#F6F8EF"/>
+  <path d="M316 417c-5-67 77-105 127-59 29-109 188-109 218-3 60-39 133 8 127 75H316Z" fill="#126C45"/>
+  <path d="M254 469h516c16 0 29 14 26 30-26 151-125 241-284 241S254 650 228 499c-3-16 10-30 26-30Z" fill="#126C45"/>
+  <path d="M439 566c39 34 107 34 146 0" fill="none" stroke="#F6F8EF" stroke-width="28" stroke-linecap="round"/>
+  <path d="M683 237c-22 30-22 68-3 95 42-7 69-39 65-78-23-17-43-23-62-17Z" fill="#C3EC73" transform="rotate(16 711 284)"/>
+  <path d="M430 242c-6 20-25 30-26 53" fill="none" stroke="#126C45" stroke-width="26" stroke-linecap="round"/>
+</svg>

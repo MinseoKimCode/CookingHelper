@@ -9,11 +9,15 @@ import org.springframework.web.server.ResponseStatusException;
 
 @SpringBootApplication
 public class Hankki {
-    public static void main(String[] args) { SpringApplication.run(Hankki.class, args); }
+
+    public static void main(String[] args) {
+        SpringApplication.run(Hankki.class, args);
+    }
 }
 
 @RestControllerAdvice
 class Errors {
+
     @ExceptionHandler(ResponseStatusException.class)
     ResponseEntity<?> problem(ResponseStatusException e) {
         return ResponseEntity.status(e.getStatusCode()).body(Map.of("error", e.getReason()));

@@ -5,7 +5,10 @@ plugins {
 }
 repositories { mavenCentral() }
 java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
-dependencies { implementation 'org.springframework.boot:spring-boot-starter-webmvc' }
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    runtimeOnly 'com.h2database:h2'
+}
 // Expo owns the UI. An exported web build can optionally be served by the API jar.
 processResources { from('dist') { into 'static' } }
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }

@@ -13,10 +13,14 @@
     "build:api": "node scripts/start.mjs build",
     "build:web": "expo export --platform web",
     "typecheck": "tsc --noEmit",
-    "pretest": "node scripts/start.mjs build",
+    "pretest": "npm run build:web && npm run build:api",
     "test": "node --test scripts/*.test.mjs",
-    "pretest:spring": "node scripts/start.mjs build",
-    "test:spring": "node --test scripts/spring-api.test.mjs"
+    "pretest:spring": "npm run build:web && npm run build:api",
+    "test:spring": "node --test scripts/spring-api.test.mjs",
+    "lint": "eslint App.tsx index.ts mobile scripts",
+    "format": "prettier --write App.tsx index.ts mobile scripts src/main/java .github *.json *.mjs",
+    "format:check": "prettier --check App.tsx index.ts mobile scripts src/main/java .github *.json *.mjs",
+    "assets:app": "node scripts/app-assets.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~58.0.17",
@@ -25,8 +29,14 @@
     "expo": "~58.0.26",
     "expo-constants": "~58.0.16",
     "expo-crypto": "~58.0.8",
+    "expo-document-picker": "~58.0.5",
+    "expo-file-system": "~58.0.14",
     "expo-image-manipulator": "~58.0.16",
     "expo-image-picker": "~58.0.10",
+    "expo-keep-awake": "~58.0.4",
+    "expo-notifications": "~58.1.9",
+    "expo-sharing": "~58.0.23",
+    "expo-splash-screen": "~58.0.14",
     "expo-status-bar": "~58.0.5",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -35,8 +45,15 @@
     "react-native-web": "^0.21.4"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/react": "~19.3.0",
-    "typescript": "~6.0.3"
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
+    "prettier-plugin-java": "^2.12.0",
+    "sharp": "^0.35.5",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.74.0"
   },
   "engines": {
     "node": ">=22"
